@@ -1,0 +1,243 @@
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    volumes:
+      - ./apps/api-gateway:/usr/src/app/apps/api-gateway
+      - ./libs:/usr/src/app/libs
+      - /usr/src/app/node_modules
+    env_file:
+      - ./.env
+    command: npm run start:dev:api-gateway
+    container_name: dompet-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://user_admin:admin123@postgres-auth:5432/auth_db?schema=public
+      - NODE_OPTIONS=--max-old-space-size=4096
+    depends_on:
+      - postgres-auth
+      # - redis
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    volumes:
+      - ./apps/auth-service:/usr/src/app/apps/auth-service
+      - ./libs:/usr/src/app/libs
+      - /usr/src/app/node_modules
+    env_file:
+      - ./.env
+    command: npm run start:dev:auth
+    container_name: dompet-auth-service
+    ports:
+      - "3001:3000"
+    environment:
+      - DATABASE_URL=postgresql://user_admin:admin123@postgres-auth:5432/auth_db?schema=public
+      - NODE_OPTIONS=--max-old-space-size=4096
+    depends_on:
+      - postgres-auth
+      # - redis
+
+  # RBAC Service
+  rbac-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    volumes:
+      - ./apps/rbac-service:/usr/src/app/apps/rbac-service
+      - ./libs:/usr/src/app/libs
+      - /usr/src/app/node_modules
+    env_file:
+      - ./.env
+    command: npm run start:dev:rbac
+    container_name: dompet-rbac-service
+    ports:
+      - "3002:3000"
+    environment:
+      - DATABASE_URL=postgresql://user_admin:admin123@postgres-rbac:5432/rbac_db?schema=public
+      - NODE_OPTIONS=--max-old-space-size=4096
+
+    depends_on:
+      - postgres-rbac
+      # - redis
+
+  # Data Master Service
+  data-master-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    volumes:
+      - ./apps/data-master-service:/usr/src/app/apps/data-master-service
+      - ./libs:/usr/src/app/libs
+      - /usr/src/app/node_modules
+    env_file:
+      - ./.env
+    command: npm run start:dev:master
+    container_name: dompet-data-master-service
+    ports:
+      - "3003:3000"
+    environment:
+      - DATABASE_URL=postgresql://user_admin:admin123@postgres-master:5432/master_db?schema=public
+      - NODE_OPTIONS=--max-old-space-size=4096
+    depends_on:
+      - postgres-master
+      # - redis
+
+  # Transaction Service
+  transaction-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    volumes:
+      - ./apps/transaction-service:/usr/src/app/apps/transaction-service
+      - ./libs:/usr/src/app/libs
+      - /usr/src/app/node_modules
+    env_file:
+      - ./.env
+    command: npm run start:dev:transaction
+    container_name: dompet-transaction-service
+    ports:
+      - "3004:3000"
+    environment:
+      - DATABASE_URL=postgresql://user_admin:admin123@postgres-transaction:5432/transaction_db?schema=public
+      - NODE_OPTIONS=--max-old-space-size=4096
+    depends_on:
+      - postgres-transaction
+      # - redis
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile.frontend
+    volumes:
+      - ./apps/frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    env_file:
+      - ./.env
+    command: npm run dev --host
+    container_name: dompet-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api-gateway
+    environment:
+      - VITE_API_URL=http://api-gateway:3000/api
+      - NODE_OPTIONS=--max-old-space-size=4096
+
+  # Databases
+  postgres-auth:
+    image: postgres:15-alpine
+    container_name: dompet-postgres-auth
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user_admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: auth_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data
+
+  postgres-rbac:
+    image: postgres:15-alpine
+    container_name: dompet-postgres-rbac
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user_admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: rbac_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_rbac_data:/var/lib/postgresql/data
+
+  postgres-master:
+    image: postgres:15-alpine
+    container_name: dompet-postgres-master
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user_admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: master_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_master_data:/var/lib/postgresql/data
+
+  postgres-transaction:
+    image: postgres:15-alpine
+    container_name: dompet-postgres-transaction
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user_admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: transaction_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_transaction_data:/var/lib/postgresql/data
+
+  # # Redis (dari contoh)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: dompet-redis
+  #   restart: unless-stopped
+  #   ports:
+  #     - '6379:6379'
+  #   command: ['redis-server', '--appendonly', 'yes']
+  #   volumes:
+  #     - redis_data:/data
+
+  # # Redis Insight
+  # redis-insight:
+  #   image: redis/redisinsight:latest
+  #   container_name: dompet-redis-insight
+  #   ports:
+  #     - '5540:5540'
+  #   volumes:
+  #     - redisinsight_data:/data
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - redis
+
+  # # Prometheus (monitoring)
+  # prometheus:
+  #   image: prom/prometheus
+  #   container_name: dompet-prometheus
+  #   volumes:
+  #     - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus_data:/prometheus
+  #   ports:
+  #     - '9090:9090'
+  #   depends_on:
+  #     - api-gateway
+
+  # # Grafana
+  # grafana:
+  #   image: grafana/grafana
+  #   container_name: dompet-grafana
+  #   ports:
+  #     - '3001:3000'
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=admin
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #   depends_on:
+  #     - prometheus
+
+volumes:
+  postgres_auth_data:
+  postgres_rbac_data:
+  postgres_master_data:
+  postgres_transaction_data:
+  # redis_data:
+  # redisinsight_data:
+  # prometheus_data:
+  # grafana_data:
