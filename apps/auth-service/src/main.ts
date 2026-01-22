@@ -1,17 +1,21 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
+import { AllExceptionsFilter } from '@common/filters/http-exception.filter';
+import { TransformInterceptor } from '@common/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const logger = new Logger('NestApplication');
-  const configService = new ConfigService();
 
   const app = await NestFactory.create(AppModule);
+  const reflector = app.get(Reflector);
 
   app.use(cookieParser());
+  app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalInterceptors(new TransformInterceptor(reflector));
+
   app.enableCors();
 
   app.useGlobalPipes(
@@ -36,7 +40,7 @@ async function bootstrap() {
 
   SwaggerModule.setup('api/docs', app, document);
 
-  const PORT = configService.get<string>('PORT_AUTH_SERVICE', '3001');
+  const PORT = 3000;
   await app.listen(PORT, '0.0.0.0');
 
   logger.log(`🚀 Application is running on: http://localhost:${PORT}`);

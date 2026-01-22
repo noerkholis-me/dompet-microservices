@@ -7,8 +7,8 @@ import { AuthenticatedUser } from '@common/types/auth.types';
 import { LoginDto } from '../../../../libs/common/src/dto/login.dto';
 import { JwtAuthGuard } from '../../../../libs/common/src/guards/jwt-auth.guard';
 
-@Controller('auth')
 @ApiTags('Auth')
+@Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
