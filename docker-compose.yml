@@ -141,7 +141,7 @@ services:
       POSTGRES_PASSWORD: admin123
       POSTGRES_DB: auth_db
     ports:
-      - "5432:5432"
+      - "2010:5432"
     volumes:
       - postgres_auth_data:/var/lib/postgresql/data
 
@@ -154,7 +154,7 @@ services:
       POSTGRES_PASSWORD: admin123
       POSTGRES_DB: rbac_db
     ports:
-      - "5433:5432"
+      - "2010:5432"
     volumes:
       - postgres_rbac_data:/var/lib/postgresql/data
 
@@ -167,7 +167,7 @@ services:
       POSTGRES_PASSWORD: admin123
       POSTGRES_DB: master_db
     ports:
-      - "5434:5432"
+      - "2010:5432"
     volumes:
       - postgres_master_data:/var/lib/postgresql/data
 
@@ -180,7 +180,7 @@ services:
       POSTGRES_PASSWORD: admin123
       POSTGRES_DB: transaction_db
     ports:
-      - "5435:5432"
+      - "2010:5432"
     volumes:
       - postgres_transaction_data:/var/lib/postgresql/data
 
