@@ -6,6 +6,7 @@ import { SuccessMessage } from '@common/decorators/success-message.decorator';
 import { AuthenticatedUser } from '@common/types/auth.types';
 import { LoginDto } from '../../../../libs/common/src/dto/login.dto';
 import { JwtAuthGuard } from '../../../../libs/common/src/guards/jwt-auth.guard';
+import { RefreshDto } from '@common/dto/refresh.dto';
 
 @ApiTags('Auth')
 @Controller()
@@ -23,10 +24,9 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh token' })
   @ApiResponse({ description: 'refresh token' })
   @SuccessMessage('Refresh token success')
-  @UseGuards(JwtAuthGuard)
   @Post('refresh-token')
-  async refresh(@Body() body: { refreshToken: string }) {
-    return this.authService.refresh(body.refreshToken);
+  async refresh(@Body() dto: RefreshDto) {
+    return this.authService.refresh(dto.refreshToken);
   }
 
   @ApiOperation({ summary: 'Get current user' })

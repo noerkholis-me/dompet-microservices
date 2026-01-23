@@ -37,6 +37,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const user: AuthenticatedUser = {
       userId: payload.sub,
       email: payload.email,
+      roles: payload.roles,
     };
 
     this.logger.debug(`User authenticated: ${user.email} (${user.userId})`);
