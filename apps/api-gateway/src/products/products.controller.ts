@@ -3,12 +3,13 @@ import { UpdateUserDto } from '@common/dto/users/update-user.dto';
 import { HttpService } from '@nestjs/axios';
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Product } from 'apps/data-master-service/src/generated/prisma/client';
 import { firstValueFrom } from 'rxjs';
 
 @Controller('api/products')
 @ApiTags('Products')
+@ApiBearerAuth()
 export class ProductsController {
   constructor(
     private readonly http: HttpService,

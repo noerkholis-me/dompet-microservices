@@ -8,6 +8,9 @@ import { RbacMiddleware } from './middleware/rbac-middleware';
 import { JwtService } from '@nestjs/jwt';
 import { AuthController } from './auth/auth.controller';
 import { HttpModule } from '@nestjs/axios';
+import { UsersController } from './users/users.controller';
+import { ProductsController } from './products/products.controller';
+import { TransactionsController } from './transactions/transactions.controller';
 
 @Module({
   imports: [
@@ -19,7 +22,7 @@ import { HttpModule } from '@nestjs/axios';
       maxRedirects: 5,
     }),
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController, AuthController, ProductsController, UsersController, TransactionsController],
   providers: [AppService, JwtService],
 })
 export class AppModule implements NestModule {

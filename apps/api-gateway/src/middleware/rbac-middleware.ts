@@ -9,17 +9,27 @@ export class RbacMiddleware implements NestMiddleware {
     if (!user.roles) throw new ForbiddenException('No roles, unauthorized');
 
     const isAdmin = user.roles.includes('ADMIN');
-    // const isPembeli = user.roles.includes('PEMBELI');
+    const isPembeli = user.roles.includes('PEMBELI');
 
-    if (req.path.startsWith('/api/users')) {
+    if (req.originalUrl.startsWith('/api/users')) {
       if (!isAdmin) throw new ForbiddenException('Admin only');
     }
 
-    if (req.path.startsWith('/api/products')) {
+    if (req.originalUrl.startsWith('/api/products')) {
       if (req.method !== 'GET' && !isAdmin) throw new ForbiddenException('Admin only for write');
     }
 
-    if (req.path.includes('/pay')) {
+    if (
+      req.originalUrl.startsWith('/api/cart') ||
+      req.originalUrl.startsWith('/api/checkout') ||
+      req.originalUrl.startsWith('/api/transactions')
+    ) {
+      if (!isPembeli) {
+        throw new ForbiddenException('Hanya PEMBELI yang boleh akses cart, checkout, dan riwayat');
+      }
+    }
+
+    if (req.originalUrl.includes('/pay')) {
       if (!isAdmin) throw new ForbiddenException('Admin only for payment confirmation');
     }
 
