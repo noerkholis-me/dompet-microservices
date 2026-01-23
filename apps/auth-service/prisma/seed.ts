@@ -5,7 +5,7 @@ import { Logger } from '@nestjs/common';
 import * as argon2 from 'argon2';
 
 const logger = new Logger('SeedAuthServices');
-const connectionString = process.env.DATABASE_URL_AUTH;
+const connectionString = process.env.DATABASE_URL;
 
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
