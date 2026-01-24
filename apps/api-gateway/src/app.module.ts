@@ -27,21 +27,12 @@ import { TransactionsController } from './transactions/transactions.controller';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    // 1. Security header (wajib pertama untuk semua route)
     consumer.apply(GatewaySecurityMiddleware).forRoutes('*');
-
-    // 2. Auth middleware (skip login & refresh)
     consumer
       .apply(AuthMiddleware)
       .exclude({ path: 'api/login', method: RequestMethod.POST })
       .exclude({ path: 'api/refresh-token', method: RequestMethod.POST })
       .forRoutes('*');
-
-    // 3. RBAC middleware (apply ke route yang butuh role check)
-    consumer.apply(RbacMiddleware).forRoutes(
-      'api/users',
-      'api/products', // ADMIN full, PEMBELI read-only ditangani di RBAC logic
-      'api/transactions/pay', // contoh ADMIN bisa pay
-    );
+    consumer.apply(RbacMiddleware).forRoutes('api/users', 'api/products', 'api/transactions/pay');
   }
 }

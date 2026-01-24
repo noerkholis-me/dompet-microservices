@@ -5,8 +5,10 @@ import { Body, Controller, Get, Param, Post, Req, Put } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { Request } from 'express';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('api')
+@ApiBearerAuth()
 export class TransactionsController {
   constructor(
     private http: HttpService,
