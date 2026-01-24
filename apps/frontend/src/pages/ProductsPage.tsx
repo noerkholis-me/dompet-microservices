@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
-import { productsApi, transactionsApi } from '../services/api';
-import { useAuth } from '../contexts/useAuth';
-import type { Product, CreateProductDto, UpdateProductDto } from '../types';
+import Layout from '@/components/Layout';
+import { productsApi, transactionsApi } from '@/services/api';
+import { useAuth } from '@/contexts/useAuth';
+import type { Product, CreateProductDto, UpdateProductDto } from '@/types';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Modal } from '@/components/ui/Modal';
 
 export default function ProductsPage() {
   const { user, isAdmin } = useAuth();
@@ -50,8 +54,9 @@ export default function ProductsPage() {
       setShowModal(false);
       resetForm();
       loadProducts();
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to save product');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to save product');
     }
   };
 
@@ -60,7 +65,7 @@ export default function ProductsPage() {
     try {
       await productsApi.delete(id);
       loadProducts();
-    } catch (err) {
+    } catch {
       setError('Failed to delete product');
     }
   };
@@ -86,8 +91,9 @@ export default function ProductsPage() {
         quantity: 1,
       });
       alert('Product added to cart!');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to add to cart');
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to add to cart');
     } finally {
       setAddingToCart(null);
     }
@@ -111,121 +117,115 @@ export default function ProductsPage() {
   return (
     <Layout>
       <div className="px-4 py-6 sm:px-0">
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-            {isAdmin && (
-              <button
-                onClick={() => {
-                  resetForm();
-                  setShowModal(true);
-                }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium"
-              >
-                Add Product
-              </button>
-            )}
-          </div>
-
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          )}
-
-          {loading ? (
-            <div className="text-center py-8">Loading...</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <div key={product.id} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{product.name}</h3>
-                  <p className="text-2xl font-bold text-blue-600 mb-4">{formatCurrency(product.harga)}</p>
-                  {isAdmin ? (
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handleAddToCart(product.id)}
-                      disabled={addingToCart === product.id}
-                      className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium"
-                    >
-                      {addingToCart === product.id ? 'Adding...' : 'Add to Cart'}
-                    </button>
-                  )}
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-3xl font-bold">Products</CardTitle>
+                {isAdmin && (
+                <Button
+                    onClick={() => {
+                    resetForm();
+                    setShowModal(true);
+                    }}
+                >
+                    Add Product
+                </Button>
+                )}
+            </CardHeader>
+          <CardContent>
+            {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {error}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+            )}
+
+            {loading ? (
+                <div className="text-center py-8">Loading...</div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {products.map((product) => (
+                    <Card key={product.id} className="border shadow-sm hover:shadow-md transition">
+                        <CardHeader>
+                            <CardTitle className="text-xl font-semibold">{product.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-2xl font-bold text-blue-600">{formatCurrency(product.harga)}</p>
+                        </CardContent>
+                        <CardFooter>
+                        {isAdmin ? (
+                            <div className="flex space-x-2 w-full">
+                            <Button
+                                onClick={() => handleEdit(product)}
+                                className="flex-1"
+                            >
+                                Edit
+                            </Button>
+                            <Button
+                                onClick={() => handleDelete(product.id)}
+                                variant="destructive"
+                                className="flex-1"
+                            >
+                                Delete
+                            </Button>
+                            </div>
+                        ) : (
+                            <Button
+                                onClick={() => handleAddToCart(product.id)}
+                                disabled={addingToCart === product.id}
+                                className="w-full bg-green-600 hover:bg-green-700"
+                            >
+                            {addingToCart === product.id ? 'Adding...' : 'Add to Cart'}
+                            </Button>
+                        )}
+                        </CardFooter>
+                    </Card>
+                ))}
+                </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingProduct ? 'Edit Product' : 'Add Product'}
-              </h3>
-              <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                  <input
-                    type="text"
-                    value={formData.nama}
-                    onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.harga}
-                    onChange={(e) => setFormData({ ...formData, harga: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    required
-                  />
-                </div>
-                <div className="flex justify-end space-x-3">
-                  <button
+      <Modal
+        isOpen={showModal}
+        onClose={() => {
+            setShowModal(false);
+            resetForm();
+        }}
+        title={editingProduct ? 'Edit Product' : 'Add Product'}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+                label="Product Name"
+                value={formData.nama}
+                onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
+                required
+            />
+            <Input
+                label="Price"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.harga}
+                onChange={(e) => setFormData({ ...formData, harga: parseFloat(e.target.value) || 0 })}
+                required
+            />
+            <div className="flex justify-end space-x-3 pt-4">
+                <Button
                     type="button"
+                    variant="outline"
                     onClick={() => {
-                      setShowModal(false);
-                      resetForm();
+                        setShowModal(false);
+                        resetForm();
                     }}
-                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                  >
+                >
                     Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
+                </Button>
+                <Button type="submit">
                     {editingProduct ? 'Update' : 'Create'}
-                  </button>
-                </div>
-              </form>
+                </Button>
             </div>
-          </div>
-        </div>
-      )}
+        </form>
+      </Modal>
     </Layout>
   );
 }
