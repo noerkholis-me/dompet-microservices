@@ -6,11 +6,11 @@ import { GatewaySecurityMiddleware } from './middleware/gateway-security.middlew
 import { AuthMiddleware } from './middleware/auth-middleware';
 import { RbacMiddleware } from './middleware/rbac-middleware';
 import { JwtService } from '@nestjs/jwt';
-import { AuthController } from './auth/auth.controller';
 import { HttpModule } from '@nestjs/axios';
-import { UsersController } from './users/users.controller';
-import { ProductsController } from './products/products.controller';
-import { TransactionsController } from './transactions/transactions.controller';
+import { AuthModule } from './auth/auth.module';
+import { ProductsModule } from './products/products.module';
+import { TransactionsModule } from './transactions/transactions.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -20,9 +20,14 @@ import { TransactionsController } from './transactions/transactions.controller';
     HttpModule.register({
       timeout: 5000,
       maxRedirects: 5,
+      global: true,
     }),
+    AuthModule,
+    ProductsModule,
+    TransactionsModule,
+    UsersModule,
   ],
-  controllers: [AppController, AuthController, ProductsController, UsersController, TransactionsController],
+  controllers: [AppController],
   providers: [AppService, JwtService],
 })
 export class AppModule implements NestModule {
