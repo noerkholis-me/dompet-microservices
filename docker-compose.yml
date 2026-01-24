@@ -41,6 +41,28 @@ services:
       - postgres-auth
       # - redis
 
+  # RBAC Service
+  rbac-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    volumes:
+      - ./apps/rbac-service:/usr/src/app/apps/rbac-service
+      - ./libs:/usr/src/app/libs
+      - /usr/src/app/node_modules
+    env_file:
+      - ./.env
+    command: npm run start:dev:rbac
+    container_name: dompet-rbac-service
+    ports:
+      - "3002:3000"
+    environment:
+      - DATABASE_URL=postgresql://user_admin:admin123@postgres-auth:5432/auth_db?schema=public
+      - NODE_OPTIONS=--max-old-space-size=4096
+    depends_on:
+      - postgres-auth
+      # - redis
+
   # Data Master Service
   data-master-service:
     build:
@@ -121,19 +143,6 @@ services:
       - "2010:5432"
     volumes:
       - postgres_auth_data:/var/lib/postgresql/data
-
-  postgres-rbac:
-    image: postgres:15-alpine
-    container_name: dompet-postgres-rbac
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: user_admin
-      POSTGRES_PASSWORD: admin123
-      POSTGRES_DB: rbac_db
-    ports:
-      - "2011:5432"
-    volumes:
-      - postgres_rbac_data:/var/lib/postgresql/data
 
   postgres-master:
     image: postgres:15-alpine
