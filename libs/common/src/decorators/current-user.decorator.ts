@@ -1,4 +1,4 @@
-import { AuthenticatedUser } from '@common/types/auth.types';
+import { AuthenticatedUser } from '@contracts/interfaces';
 import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 
 export const CurrentUser = createParamDecorator((data: keyof AuthenticatedUser, ctx: ExecutionContext) => {

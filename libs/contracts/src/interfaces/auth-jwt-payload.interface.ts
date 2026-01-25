@@ -1,9 +1,9 @@
-import { RoleType } from '../enums/role.enum';
+import { ERoleType } from '@contracts/generated';
 
 export interface JwtPayload {
   sub: string;
   email: string;
-  roles: RoleType[];
+  roles: ERoleType[];
   iat?: number;
   exp?: number;
 }

@@ -33,6 +33,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Dompet Microservices - Public API')
     .setDescription('Dompet Microservices - Public API Gateway')
+    .addTag('Health')
     .addBearerAuth()
     .setVersion('1.0')
     .build();

@@ -1,11 +1,11 @@
-import { CreateProductDto } from '@common/dto/products/create-product.dto';
-import { UpdateUserDto } from '@common/dto/users/update-user.dto';
 import { HttpService } from '@nestjs/axios';
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { firstValueFrom } from 'rxjs';
 import { Product } from '@contracts/generated';
+import { CreateProductDto } from '@contracts/dto/products';
+import { UpdateUserDto } from '@contracts/dto/users';
 
 @Controller('api/products')
 @ApiTags('Products')

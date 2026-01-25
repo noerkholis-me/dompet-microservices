@@ -3,10 +3,9 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
 import { SuccessMessage } from '@common/decorators/success-message.decorator';
-import { AuthenticatedUser } from '@common/types/auth.types';
-import { LoginDto } from '@common/dto/login.dto';
-import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
-import { RefreshDto } from '@common/dto/refresh.dto';
+import { LoginDto, RefreshDto } from '@contracts/dto/auth';
+import { AuthenticatedUser } from '@contracts/interfaces';
+import { JwtAuthGuard } from '@common/guards';
 
 @ApiTags('Auth')
 @Controller()
