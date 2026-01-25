@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
@@ -8,8 +8,4 @@ RUN npm config set fetch-retries 5
 RUN npm config set fetch-retry-mintimeout 20000
 RUN npm install
 
-COPY . ./
-
-EXPOSE 5173
-
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "dev", "--", "--host"]

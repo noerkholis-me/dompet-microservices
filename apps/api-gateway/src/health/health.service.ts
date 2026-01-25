@@ -1,12 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
-export class AppService {
-  getHello(): string {
-    return 'Hello World!';
-  }
+export class HealthService {
+  private readonly logger = new Logger(HealthService.name);
 
   getHealth(): object {
+    this.logger.log('Health check');
     return {
       status: 'OK',
       timestamp: new Date().toISOString(),

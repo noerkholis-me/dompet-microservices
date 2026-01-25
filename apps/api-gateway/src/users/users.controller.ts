@@ -1,10 +1,10 @@
 import { CreateUserDto } from '@common/dto/users/create-user.dto';
 import { UpdateUserDto } from '@common/dto/users/update-user.dto';
+import { User } from '@contracts/generated/auth-services.types';
 import { HttpService } from '@nestjs/axios';
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { User } from 'apps/rbac-service/src/generated/prisma/client';
 import { firstValueFrom } from 'rxjs';
 
 @Controller('api/users')
