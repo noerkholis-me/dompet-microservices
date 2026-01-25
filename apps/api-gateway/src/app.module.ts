@@ -1,6 +1,4 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { GatewaySecurityMiddleware } from './middleware/gateway-security.middleware';
 import { AuthMiddleware } from './middleware/auth-middleware';
@@ -11,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { UsersModule } from './users/users.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -26,9 +25,9 @@ import { UsersModule } from './users/users.module';
     ProductsModule,
     TransactionsModule,
     UsersModule,
+    HealthModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, JwtService],
+  providers: [JwtService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
