@@ -16,7 +16,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      await login({ email, password });
       navigate('/dashboard');
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
