@@ -13,7 +13,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalFilters(new AxiosExceptionFilter());
   app.enableCors({
-    origin: ['http://localhost:5173', 'http://localhost:3000', 'http://172.19.0.6:5173'],
+    origin: ['http://localhost:5173', 'http://localhost:3000', 'http://172.19.0.6:5173', 'http://localhost:8080'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: ['Content-Type', 'Authorization', 'x-internal-key'],
     credentials: true,
