@@ -4,8 +4,8 @@ import { HttpService } from '@nestjs/axios';
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Product } from 'apps/data-master-service/src/generated/prisma/client';
 import { firstValueFrom } from 'rxjs';
+import { Product } from '@contracts/generated';
 
 @Controller('api/products')
 @ApiTags('Products')

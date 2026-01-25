@@ -10,6 +10,13 @@ generator client {
   moduleFormat = "cjs"
 }
 
+generator interfaces {
+  provider = "prisma-generator-typescript-interfaces"
+  output   = "../../../libs/contracts/src/generated/data-master-services.types.ts"
+  enumPrefix = "E"
+  prettier    = true
+}
+
 datasource db {
   provider = "postgresql"
 }
