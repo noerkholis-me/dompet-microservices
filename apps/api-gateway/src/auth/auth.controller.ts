@@ -4,9 +4,9 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { Request } from 'express';
-import { LoginDto } from '@common/dto/login.dto';
+import { LoginDto } from '@contracts/dto/auth/login.dto';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { RefreshDto } from '@common/dto/refresh.dto';
+import { RefreshDto } from '@contracts/dto/auth/refresh.dto';
 
 @Controller('api')
 export class AuthController {

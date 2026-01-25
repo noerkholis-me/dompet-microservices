@@ -1,8 +1,10 @@
-// src/pages/LoginPage.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { AxiosError } from 'axios';
-import { useAuth } from '../contexts';
+import { useAuth } from '@/contexts';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -23,32 +25,36 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white rounded shadow">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 mb-4 border rounded"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 mb-6 border rounded"
-            required
-          />
-          <button type="submit" className="w-full p-3 bg-blue-600 text-white rounded">
-            Login
-          </button>
-        </form>
-      </div>
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+            <CardTitle className="text-center">Login</CardTitle>
+        </CardHeader>
+        <CardContent>
+            {error && <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded">{error}</div>}
+            <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+                type="email"
+                placeholder="Email"
+                label="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+            />
+            <Input
+                type="password"
+                placeholder="Password"
+                label="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+            />
+            <Button type="submit" className="w-full" size="lg">
+                Login
+            </Button>
+            </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

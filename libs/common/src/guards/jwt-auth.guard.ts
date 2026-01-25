@@ -1,4 +1,4 @@
-import { AuthenticatedUser } from '@common/types/auth.types';
+import { AuthenticatedUser } from '@contracts/interfaces';
 import { ExecutionContext, Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 

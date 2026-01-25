@@ -1,4 +1,4 @@
-import { RoleType } from '@common/enums/role.enum';
+import { RoleType } from '../../enums/role.enum';
 
 export class CreateUserDto {
   name: string;

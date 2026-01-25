@@ -1,11 +1,12 @@
 // src/contexts/AuthContext.ts - Context and types only (no components)
 import { createContext } from 'react';
-import type { AuthUser } from '../types';
+import type { LoginDto } from '@contracts/dto/auth/login.dto';
+import type { UserResponse } from '@contracts/responses/auth-response.interface';
 
 export interface AuthContextType {
-  user: AuthUser | null;
+  user: UserResponse | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (dto: LoginDto) => Promise<void>;
   logout: () => void;
   loading: boolean;
   isAdmin: boolean;

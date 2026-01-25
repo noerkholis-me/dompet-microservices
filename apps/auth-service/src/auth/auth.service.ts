@@ -3,8 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { LoginDto } from '@common/dto/login.dto';
-import { JwtPayload } from '@common/types/auth.types';
+import { LoginDto } from '@contracts/dto/auth';
+import { JwtPayload } from '@contracts/interfaces';
 import { ConfigService } from '@nestjs/config';
 import { RoleType } from '../generated/prisma/enums';
 

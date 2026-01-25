@@ -3,12 +3,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Reflector } from '@nestjs/core';
 import { SUCCESS_MESSAGE_KEY } from '../decorators/success-message.decorator';
-
-export interface ApiResponse<T> {
-  statusCode: number;
-  message: string;
-  data: T;
-}
+import { ApiResponse } from '@contracts/responses/api-response.interface';
 
 @Injectable()
 export class TransformInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {

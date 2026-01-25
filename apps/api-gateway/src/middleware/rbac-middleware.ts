@@ -1,4 +1,4 @@
-import { JwtPayload } from '@common/types/auth.types';
+import { JwtPayload } from '@contracts/interfaces';
 import { Injectable, NestMiddleware, ForbiddenException } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 
