@@ -1,10 +1,11 @@
 import { useState, useEffect, type ReactNode } from 'react';
-import { authApi } from '../services/api';
 import { AuthContext } from './AuthContext';
-import type { AuthUser } from '../types';
+import type { UserResponse } from '@contracts/responses/auth-response.interface';
+import type { LoginDto } from '@contracts/dto/auth/login.dto';
+import { authApi } from '@/services/auth.api';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<UserResponse | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('accessToken'));
   const [loading, setLoading] = useState(true);
 
@@ -31,9 +32,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadUser();
   }, [token]);
 
-  const login = async (email: string, password: string) => {
-    const res = await authApi.login(email, password);
-    const { accessToken, refreshToken } = res;
+  const login = async (data: LoginDto) => {
+    const res = await authApi.login(data);
+    const { accessToken, refreshToken } = res.token;
 
     localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
@@ -47,8 +48,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const isAdmin = user?.roles?.includes('ADMIN') ?? false;
-  const isPembeli = user?.roles?.includes('PEMBELI') ?? false;
+  const isAdmin = user?.roles.includes('ADMIN') ?? false;
+  const isPembeli = user?.roles.includes('PEMBELI') ?? false;
 
   return (
     <AuthContext.Provider value={{ user, token, login, logout, loading, isAdmin, isPembeli }}>

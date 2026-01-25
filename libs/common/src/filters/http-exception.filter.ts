@@ -1,9 +1,9 @@
+import { HttpExceptionResponse } from '@contracts/index';
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
-
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
@@ -21,6 +21,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       error: exception instanceof HttpException ? exception.name : 'Error',
       timestamp: new Date().toISOString(),
       path: request.url,
-    });
+    } as HttpExceptionResponse);
   }
 }

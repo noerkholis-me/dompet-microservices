@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
-import { productsApi, transactionsApi } from '@/services/api';
 import { useAuth } from '@/contexts/useAuth';
 import type { Product, CreateProductDto, UpdateProductDto } from '@/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
+import { productsApi } from '@/services/product.api';
+import { transactionsApi } from '@/services/transactions.api';
 
 export default function ProductsPage() {
   const { user, isAdmin } = useAuth();
@@ -80,7 +81,7 @@ export default function ProductsPage() {
   };
 
   const handleAddToCart = async (productId: string) => {
-    if (!user?.sub) {
+    if (!user?.id) {
       setError('User ID not found');
       return;
     }
@@ -118,68 +119,59 @@ export default function ProductsPage() {
     <Layout>
       <div className="px-4 py-6 sm:px-0">
         <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-3xl font-bold">Products</CardTitle>
-                {isAdmin && (
-                <Button
-                    onClick={() => {
-                    resetForm();
-                    setShowModal(true);
-                    }}
-                >
-                    Add Product
-                </Button>
-                )}
-            </CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-3xl font-bold">Products</CardTitle>
+            {isAdmin && (
+              <Button
+                onClick={() => {
+                  resetForm();
+                  setShowModal(true);
+                }}
+              >
+                Add Product
+              </Button>
+            )}
+          </CardHeader>
           <CardContent>
             {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                {error}
-                </div>
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>
             )}
 
             {loading ? (
-                <div className="text-center py-8">Loading...</div>
+              <div className="text-center py-8">Loading...</div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.map((product) => (
-                    <Card key={product.id} className="border shadow-sm hover:shadow-md transition">
-                        <CardHeader>
-                            <CardTitle className="text-xl font-semibold">{product.name}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-2xl font-bold text-blue-600">{formatCurrency(product.harga)}</p>
-                        </CardContent>
-                        <CardFooter>
-                        {isAdmin ? (
-                            <div className="flex space-x-2 w-full">
-                            <Button
-                                onClick={() => handleEdit(product)}
-                                className="flex-1"
-                            >
-                                Edit
-                            </Button>
-                            <Button
-                                onClick={() => handleDelete(product.id)}
-                                variant="destructive"
-                                className="flex-1"
-                            >
-                                Delete
-                            </Button>
-                            </div>
-                        ) : (
-                            <Button
-                                onClick={() => handleAddToCart(product.id)}
-                                disabled={addingToCart === product.id}
-                                className="w-full bg-green-600 hover:bg-green-700"
-                            >
-                            {addingToCart === product.id ? 'Adding...' : 'Add to Cart'}
-                            </Button>
-                        )}
-                        </CardFooter>
-                    </Card>
+                  <Card key={product.id} className="border shadow-sm hover:shadow-md transition">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-semibold">{product.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold text-blue-600">{formatCurrency(product.harga)}</p>
+                    </CardContent>
+                    <CardFooter>
+                      {isAdmin ? (
+                        <div className="flex space-x-2 w-full">
+                          <Button onClick={() => handleEdit(product)} className="flex-1">
+                            Edit
+                          </Button>
+                          <Button onClick={() => handleDelete(product.id)} variant="destructive" className="flex-1">
+                            Delete
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          onClick={() => handleAddToCart(product.id)}
+                          disabled={addingToCart === product.id}
+                          className="w-full bg-green-600 hover:bg-green-700"
+                        >
+                          {addingToCart === product.id ? 'Adding...' : 'Add to Cart'}
+                        </Button>
+                      )}
+                    </CardFooter>
+                  </Card>
                 ))}
-                </div>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -188,42 +180,40 @@ export default function ProductsPage() {
       <Modal
         isOpen={showModal}
         onClose={() => {
-            setShowModal(false);
-            resetForm();
+          setShowModal(false);
+          resetForm();
         }}
         title={editingProduct ? 'Edit Product' : 'Add Product'}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-                label="Product Name"
-                value={formData.nama}
-                onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                required
-            />
-            <Input
-                label="Price"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.harga}
-                onChange={(e) => setFormData({ ...formData, harga: parseFloat(e.target.value) || 0 })}
-                required
-            />
-            <div className="flex justify-end space-x-3 pt-4">
-                <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                        setShowModal(false);
-                        resetForm();
-                    }}
-                >
-                    Cancel
-                </Button>
-                <Button type="submit">
-                    {editingProduct ? 'Update' : 'Create'}
-                </Button>
-            </div>
+          <Input
+            label="Product Name"
+            value={formData.nama}
+            onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
+            required
+          />
+          <Input
+            label="Price"
+            type="number"
+            min="0"
+            step="0.01"
+            value={formData.harga}
+            onChange={(e) => setFormData({ ...formData, harga: parseFloat(e.target.value) || 0 })}
+            required
+          />
+          <div className="flex justify-end space-x-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowModal(false);
+                resetForm();
+              }}
+            >
+              Cancel
+            </Button>
+            <Button type="submit">{editingProduct ? 'Update' : 'Create'}</Button>
+          </div>
         </form>
       </Modal>
     </Layout>
