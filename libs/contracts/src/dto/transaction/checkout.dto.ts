@@ -1,8 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { CheckoutSchema } from '@contracts/schemas/transaction';
+import { createZodDto } from 'nestjs-zod';
 
-export class CheckoutDto {
-  @ApiProperty({ example: 'uuid-user-123', description: 'ID pembeli (dari JWT)' })
-  @IsString()
-  pembeliId: string;
-}
+export class CheckoutDto extends createZodDto(CheckoutSchema) {}

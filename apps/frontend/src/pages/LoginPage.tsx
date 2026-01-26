@@ -16,7 +16,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      await login({ email, password });
       navigate('/dashboard');
     } catch (err) {
       const axiosError = err as AxiosError<{ message: string }>;
@@ -28,31 +28,31 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-            <CardTitle className="text-center">Login</CardTitle>
+          <CardTitle className="text-center">Login</CardTitle>
         </CardHeader>
         <CardContent>
-            {error && <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded">{error}</div>}
-            <form onSubmit={handleSubmit} className="space-y-4">
+          {error && <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded">{error}</div>}
+          <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-                type="email"
-                placeholder="Email"
-                label="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+              type="email"
+              placeholder="Email"
+              label="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
             <Input
-                type="password"
-                placeholder="Password"
-                label="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+              type="password"
+              placeholder="Password"
+              label="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
             />
             <Button type="submit" className="w-full" size="lg">
-                Login
+              Login
             </Button>
-            </form>
+          </form>
         </CardContent>
       </Card>
     </div>

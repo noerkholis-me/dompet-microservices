@@ -1,8 +1,4 @@
-import { RoleType } from '../../enums/role.enum';
+import { createZodDto } from 'nestjs-zod';
+import { CreateUserSchema } from '@contracts/schemas/users';
 
-export class CreateUserDto {
-  name: string;
-  email: string;
-  password: string;
-  role?: RoleType;
-}
+export class CreateUserDto extends createZodDto(CreateUserSchema) {}

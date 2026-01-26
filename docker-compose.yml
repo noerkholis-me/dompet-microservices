@@ -153,6 +153,7 @@ services:
       dockerfile: Dockerfile.frontend
     volumes:
       - ./apps/frontend:/usr/src/app
+      - ./libs:/usr/src/app/libs
       - /usr/src/app/node_modules
     env_file:
       - ./.env

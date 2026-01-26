@@ -10,6 +10,8 @@ import { ProductsModule } from './products/products.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
+import { APP_PIPE } from '@nestjs/core';
+import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 
 @Module({
   imports: [
@@ -27,7 +29,17 @@ import { HealthModule } from './health/health.module';
     UsersModule,
     HealthModule,
   ],
-  providers: [JwtService],
+  providers: [
+    {
+      provide: APP_PIPE,
+      useFactory: () => new ZodValidationPipe(),
+    },
+    {
+      provide: APP_PIPE,
+      useFactory: () => new ZodSerializerInterceptor(),
+    },
+    JwtService,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

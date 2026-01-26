@@ -1,4 +1,4 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateProductDto } from './create-product.dto';
+import { createZodDto } from 'nestjs-zod';
+import { UpdateProductSchema } from '@contracts/schemas/products';
 
-export class UpdateProductDto extends PartialType(CreateProductDto) {}
+export class UpdateProductDto extends createZodDto(UpdateProductSchema) {}

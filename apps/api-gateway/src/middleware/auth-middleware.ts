@@ -12,7 +12,12 @@ export class AuthMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    if (req.originalUrl === '/api/login' || req.originalUrl === '/api/refresh-token' || req.originalUrl === '/health') {
+    if (
+      req.originalUrl === '/health' ||
+      req.originalUrl === '/api/ping' ||
+      req.originalUrl === '/api/login' ||
+      req.originalUrl === '/api/refresh-token'
+    ) {
       return next();
     }
 

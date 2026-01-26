@@ -1,8 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { RefreshSchema } from '@contracts/schemas/auth';
+import { createZodDto } from 'nestjs-zod';
 
-export class RefreshDto {
-  @ApiProperty({ example: 'copy token after login', description: 'Refresh Token' })
-  @IsNotEmpty()
-  refreshToken: string;
-}
+export class RefreshDto extends createZodDto(RefreshSchema) {}
