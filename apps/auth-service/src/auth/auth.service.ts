@@ -7,6 +7,7 @@ import { LoginDto } from '@contracts/dto/auth';
 import { JwtPayload } from '@contracts/interfaces';
 import { ConfigService } from '@nestjs/config';
 import { RoleType } from '../generated/prisma/enums';
+import { AuthResponse } from '@contracts/index';
 
 @Injectable()
 export class AuthService {
@@ -18,13 +19,27 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto): Promise<AuthResponse> {
     const { email, password } = dto;
 
     const user = await this.prisma.user.findUnique({
       where: { email },
-      include: { roles: { select: { role: true } } },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        name: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        roles: {
+          select: {
+            role: true,
+          },
+        },
+      },
     });
+
     if (!user) throw new UnauthorizedException('Email atau password salah');
 
     const isPasswordValid = await argon2.verify(user.password, password);
@@ -42,8 +57,11 @@ export class AuthService {
     );
 
     return {
-      accessToken,
-      refreshToken,
+      token: { accessToken, refreshToken },
+      user: {
+        ...user,
+        roles: user.roles.map((role) => role.role),
+      },
     };
   }
 
