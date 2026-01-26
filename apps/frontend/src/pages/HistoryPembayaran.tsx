@@ -160,9 +160,8 @@ const HistoryPembayaran: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="SEMUA">Semua Status</SelectItem>
-                  <SelectItem value="menunggu">Menunggu Pembayaran</SelectItem>
-                  <SelectItem value="sudah_dibayar">Sudah Dibayar</SelectItem>
-                  <SelectItem value="expired">Expired</SelectItem>
+                  <SelectItem value={ETransactionStatus.BELUM_DIBAYAR}>Menunggu Pembayaran</SelectItem>
+                  <SelectItem value={ETransactionStatus.SUDAH_DIBAYAR}>Sudah Dibayar</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -212,8 +211,10 @@ const HistoryPembayaran: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div>
-                          {/* <p className="font-medium">{transaction}</p> */}
-                          {/* <p className="text-xs text-muted-foreground">{transaction.product.price.toLocaleString()} Hits</p> */}
+                          <p className="font-medium">{transaction.items[0]?.product.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {transaction.items[0]?.quantity.toLocaleString()} Hits
+                          </p>
                         </div>
                       </TableCell>
                       <TableCell className="font-semibold">{formatRupiah(transaction.totalHarga)}</TableCell>
@@ -262,7 +263,8 @@ const HistoryPembayaran: React.FC = () => {
                     <tr className="border-b">
                       <td className="px-4 py-3 text-muted-foreground">Produk</td>
                       <td className="px-4 py-3 font-medium">
-                        {/* {selectedTransaction.items} ({selectedTransaction.items[0].jumlahHit.toLocaleString()} Hits) */}
+                        {selectedTransaction.items[0].product.name} (
+                        {selectedTransaction.items[0].quantity.toLocaleString()} Hits)
                       </td>
                     </tr>
                     <tr className="border-b">

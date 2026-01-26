@@ -1,7 +1,7 @@
 import { AddToCartDto } from '@contracts/dto/transaction/add-to-cart.dto';
 import { CheckoutDto } from '@contracts/dto/transaction/checkout.dto';
 import { HttpService } from '@nestjs/axios';
-import { Body, Controller, Get, Param, Post, Req, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, Put, Query } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { Request } from 'express';
@@ -47,7 +47,7 @@ export class TransactionsController {
   async checkout(@Body() dto: CheckoutDto, @Req() req: Request) {
     return (
       await firstValueFrom(
-        this.http.post<string>('http://transaction-service:3000/checkout', dto, {
+        this.http.post('http://transaction-service:3000/checkout', dto, {
           headers: {
             'X-INTERNAL-KEY': this.config.get<string>('INTERNAL_API_KEY'),
             Authorization: req.headers.authorization,
@@ -61,7 +61,7 @@ export class TransactionsController {
   async pay(@Param('id') id: string, @Req() req: Request) {
     return (
       await firstValueFrom(
-        this.http.put<string>(`http://transaction-service:3000/transactions/${id}/pay`, {
+        this.http.put<string>(`http://transaction-service:3000/transactions/${id}/pay`, undefined, {
           headers: {
             'X-INTERNAL-KEY': this.config.get<string>('INTERNAL_API_KEY'),
             Authorization: req.headers.authorization,
@@ -72,13 +72,24 @@ export class TransactionsController {
   }
 
   @Get('transactions/:userId')
-  async getHistory(@Param('userId') userId: string, @Req() req: Request) {
+  async getHistory(
+    @Param('userId') userId: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @Query('status') status: string,
+    @Req() req: Request,
+  ) {
     return (
       await firstValueFrom(
         this.http.get<string>(`http://transaction-service:3000/transactions/${userId}`, {
           headers: {
             'X-INTERNAL-KEY': this.config.get<string>('INTERNAL_API_KEY'),
             Authorization: req.headers.authorization,
+          },
+          params: {
+            startDate,
+            endDate,
+            status,
           },
         }),
       )

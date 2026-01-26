@@ -1,10 +1,10 @@
 import { Transaction, PaymentStatus, ApiResponse, BillingInfo, Product } from '@/types';
 import api from '@/lib/api';
-import { CheckoutResponse, TransactionHistoryResponse } from '@contracts/responses/transaction-response.interface';
+import { TransactionHistoryResponse } from '@contracts/responses/transaction-response.interface';
 import { ETransactionStatus } from '@contracts/generated';
 
 // Helper to map API transaction response to Frontend Transaction type
-const mapApiTransactionToLocal = (t: TransactionHistoryResponse): FrontendTransaction => {
+const mapApiTransactionToLocal = (t: TransactionHistoryResponse): Transaction => {
   let status: PaymentStatus = 'menunggu';
   if (t.status === 'SUDAH_DIBAYAR') {
     status = 'sudah_dibayar';
@@ -38,8 +38,17 @@ const mapApiTransactionToLocal = (t: TransactionHistoryResponse): FrontendTransa
 };
 
 export const transactionService = {
-  async getTransactions(userId?: string): Promise<TransactionHistoryResponse[]> {
-    const response = await api.get<ApiResponse<TransactionHistoryResponse[]>>(`/transactions/${userId}`);
+  async getTransactions(
+    userId?: string,
+    filters?: {
+      startDate?: string;
+      endDate?: string;
+      status?: ETransactionStatus | 'SEMUA';
+    },
+  ): Promise<TransactionHistoryResponse[]> {
+    const response = await api.get<ApiResponse<TransactionHistoryResponse[]>>(`/transactions/${userId}`, {
+      params: { ...filters },
+    });
     return response.data.data;
   },
 
@@ -75,31 +84,16 @@ export const transactionService = {
       await api.post('/cart/add', {
         productId: product.id,
         quantity: 1,
+        userId,
       });
 
       // 2. Checkout
-      const checkoutResponse = await api.post<CheckoutResponse>('/checkout', {
-        pembeliId: userId,
+      const checkoutResponse = await api.post<TransactionHistoryResponse>('/checkout', {
+        userId,
       });
       const checkoutData = checkoutResponse.data;
 
-      // 3. Since checkout API doesn't return the full transaction object with ID,
-      // We will fetch the latest transaction for this user to get the ID.
-      // This is a workaround.
-      const historyResponse = await api.get<TransactionHistoryResponse[]>(`/transactions/${userId}`);
-      // Assuming the latest one is the one we just created.
-      // Sort by createdAt desc just to be safe if backend doesn't order them.
-      const sortedHistory = historyResponse.data.sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      );
-
-      const latestTransaction = sortedHistory[0];
-
-      if (!latestTransaction) {
-        throw new Error('Failed to retrieve created transaction');
-      }
-
-      const transaction = mapApiTransactionToLocal(latestTransaction);
+      const transaction = mapApiTransactionToLocal(checkoutData);
 
       const billing: BillingInfo = {
         kodeBilling: checkoutData.kodeBilling,
@@ -128,16 +122,7 @@ export const transactionService = {
       status?: ETransactionStatus | 'SEMUA';
     },
   ): Promise<ApiResponse<TransactionHistoryResponse[]>> {
-    // Fetch all then filter client-side
-    let result = await this.getTransactions(userId);
-
-    if (filters.startDate) {
-      result = result.filter((t) => new Date(t.createdAt) >= new Date(filters.startDate!));
-    }
-
-    if (filters.endDate) {
-      result = result.filter((t) => new Date(t.createdAt) <= new Date(filters.endDate!));
-    }
+    const result = await this.getTransactions(userId, filters);
 
     return {
       success: true,

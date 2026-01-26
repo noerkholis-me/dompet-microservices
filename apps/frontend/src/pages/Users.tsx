@@ -22,7 +22,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Search, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
-import { CreateUserInput, CreateUserSchema } from '@contracts/schemas/users';
+import { CreateUserInput, CreateUserSchema, UpdateUserSchema } from '@contracts/schemas/users';
 import { RoleType } from '@contracts/enums/role.enum';
 import { User } from '@contracts/generated';
 
@@ -44,7 +44,7 @@ const Users: React.FC = () => {
     watch,
     formState: { errors },
   } = useForm<CreateUserInput>({
-    resolver: zodResolver(CreateUserSchema),
+    resolver: zodResolver(selectedUser ? UpdateUserSchema : CreateUserSchema),
     defaultValues: {
       role: RoleType.PEMBELI,
       status: true,
@@ -89,7 +89,7 @@ const Users: React.FC = () => {
       name: user.name,
       email: user.email,
       password: '',
-      role: RoleType.PEMBELI,
+      role: user.roles?.some((role) => role.role === RoleType.ADMIN) ? RoleType.ADMIN : RoleType.PEMBELI,
       status: user.status,
     });
     setIsModalOpen(true);
