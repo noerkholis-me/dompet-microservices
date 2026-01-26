@@ -1,3 +1,4 @@
+import { TOKEN_KEY } from '@/contexts/AuthContext';
 import axios from 'axios';
 
 const api = axios.create({
@@ -9,7 +10,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem(TOKEN_KEY);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

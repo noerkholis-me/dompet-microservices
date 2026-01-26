@@ -5,11 +5,11 @@ export interface TokenResponse {
   refreshToken: string;
 }
 
-export type UserResponse = Omit<User, 'password'> & {
+export type UserOmitPassword = Omit<User, 'password' | 'roles'> & {
   roles: ERoleType[];
 };
 
 export interface AuthResponse {
-  user: UserResponse;
+  user: UserOmitPassword;
   token: TokenResponse;
 }
