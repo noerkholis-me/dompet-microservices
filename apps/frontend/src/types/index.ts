@@ -1,92 +1,96 @@
+import { UserOmitPassword } from '@contracts/responses/auth-response.interface';
+
 // User types
+export type UserRole = 'admin' | 'pembeli';
+export type UserStatus = 'aktif' | 'nonaktif';
+
 export interface User {
   id: string;
-  name: string;
+  namaLengkap: string;
+  username: string;
   email: string;
-  status: boolean;
+  role: UserRole;
+  status: UserStatus;
   createdAt: string;
-  role?: string;
 }
 
-export interface CreateUserDto {
-  name: string;
+export interface CreateUserPayload {
+  namaLengkap: string;
+  username: string;
   email: string;
   password: string;
-  role?: 'ADMIN' | 'PEMBELI';
+  role: UserRole;
+  status: UserStatus;
 }
 
-export interface UpdateUserDto {
-  name?: string;
-  email?: string;
-  password?: string;
-  role?: 'ADMIN' | 'PEMBELI';
-  status?: boolean;
+export interface UpdateUserPayload extends Partial<CreateUserPayload> {
+  id: string;
 }
 
 // Product types
 export interface Product {
   id: string;
-  name: string;
-  harga: number;
-  created_at: string;
+  namaProduk: string;
+  hargaPerToken: number;
+  jumlahHit: number;
+  createdAt: string;
 }
 
-export interface CreateProductDto {
-  nama: string;
-  harga: number;
-}
-
-export interface UpdateProductDto {
-  nama?: string;
-  harga?: number;
-}
-
-// Cart types
-export interface CartItem {
-  id: string;
-  transaksi_id?: string;
-  produk_id: string;
-  harga: number;
-  quantity: number;
-  product?: Product;
-}
-
-export interface Cart {
-  items: CartItem[];
-  total: number;
+export interface CreateProductPayload {
+  namaProduk: string;
+  hargaPerToken: number;
+  jumlahHit: number;
 }
 
 // Transaction types
+export type PaymentStatus = 'menunggu' | 'sudah_dibayar' | 'expired';
+
 export interface Transaction {
   id: string;
-  kode_billing: string;
-  PEMBELI_id: string;
-  total_harga: number;
-  status: 'BELUM_DIBAYAR' | 'SUDAH_DIBAYAR';
-  expired_at: string;
-  created_at: string;
-  keranjang?: CartItem[];
-}
-
-export interface AddToCartDto {
-  productId: string;
-  quantity: number;
-}
-
-export interface CheckoutDto {
-  pembeliId: string;
+  idTransaksi: string;
+  tanggal: string;
+  produk: string;
+  jumlahHit: number;
+  total: number;
+  status: PaymentStatus;
+  kodeBilling?: string;
+  tanggalKadaluarsa?: string;
+  userId: string;
 }
 
 // Auth types
-export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
+export interface AuthUser {
+  id: string;
+  username: string;
+  namaLengkap: string;
+  email: string;
+  role: UserRole;
 }
 
-export interface AuthUser {
-  sub: string;
-  email: string;
-  roles: ('ADMIN' | 'PEMBELI')[];
-  iat?: number;
-  exp?: number;
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+export interface AuthState {
+  user: UserOmitPassword | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
+// API Response types
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
+// Billing types
+export interface BillingInfo {
+  kodeBilling: string;
+  nominal: number;
+  tanggalKadaluarsa: string;
+  produk: string;
+  jumlahHit: number;
 }
