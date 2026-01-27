@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
@@ -7,6 +7,7 @@ import { Request } from 'express';
 import { LoginDto } from '@contracts/dto/auth/login.dto';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { RefreshDto } from '@contracts/dto/auth/refresh.dto';
+import { JwtAuthGuard } from '@common/guards';
 
 @Controller('api')
 export class AuthController {
@@ -26,6 +27,7 @@ export class AuthController {
     ).data;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('refresh-token')
   async refresh(@Body() dto: RefreshDto) {
     return (
@@ -38,6 +40,7 @@ export class AuthController {
   }
 
   @Get('me')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user (protected)' })
   async me(@Req() req: Request) {
