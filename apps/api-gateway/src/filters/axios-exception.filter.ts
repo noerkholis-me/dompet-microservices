@@ -1,23 +1,33 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus } from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Logger } from '@nestjs/common';
+import { ApiErrorResponse } from '@contracts/responses';
 import { AxiosError } from 'axios';
 import { Response } from 'express';
 
 @Catch(AxiosError)
 export class AxiosExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(AxiosExceptionFilter.name);
+
   catch(exception: AxiosError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const dataResponse = exception.response?.data as { error?: string };
+    const request = ctx.getRequest<Request>();
 
     const status = exception.response?.status || HttpStatus.INTERNAL_SERVER_ERROR;
-    const apiGatewayResponse = {
+    const errorData = exception.response?.data as ApiErrorResponse;
+
+    this.logger.error(
+      `Upstream Error [${request.method} ${request.url}] -> ${status}`,
+      JSON.stringify(errorData || exception.message),
+    );
+
+    const errorResponse: ApiErrorResponse = {
       statusCode: status,
-      message: exception.message || 'Internal Server Error',
-      error: dataResponse?.error,
+      message: errorData?.message || exception.message || 'Service Unavailable',
+      error: errorData?.error || 'GatewayError',
       timestamp: new Date().toISOString(),
-      path: ctx.getRequest<Request>().url,
+      path: request.url,
     };
 
-    response.status(status).json(exception.response?.data || apiGatewayResponse);
+    response.status(status).json(errorResponse);
   }
 }
