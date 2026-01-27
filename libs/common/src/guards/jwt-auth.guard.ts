@@ -1,5 +1,5 @@
+import { ExecutionContext, Injectable, UnauthorizedException, Logger, BadRequestException } from '@nestjs/common';
 import { AuthenticatedUser } from '@contracts/interfaces';
-import { ExecutionContext, Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
@@ -10,14 +10,14 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context);
   }
 
-  handleRequest<TUser = AuthenticatedUser>(err: Error | null, user: AuthenticatedUser | false, info: unknown): TUser {
+  handleRequest<TUser = AuthenticatedUser>(err: Error | null, user: AuthenticatedUser | false): TUser {
     if (err) {
       this.logger.warn(`Authentication error: ${err.message}`);
-      throw err;
+      throw new BadRequestException(err.message);
     }
 
     if (!user) {
-      this.logger.warn('Authentication failed: No user found', { info });
+      this.logger.warn('Authentication failed: No user found');
       throw new UnauthorizedException('Authentication required');
     }
 

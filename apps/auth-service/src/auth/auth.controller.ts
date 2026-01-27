@@ -5,7 +5,7 @@ import { CurrentUser } from '@common/decorators/current-user.decorator';
 import { SuccessMessage } from '@common/decorators/success-message.decorator';
 import { LoginDto, RefreshDto } from '@contracts/dto/auth';
 import { AuthenticatedUser } from '@contracts/interfaces';
-import { JwtAuthGuard } from '@common/guards';
+import { InternalGuard } from '@common/guards';
 
 @ApiTags('Auth')
 @Controller()
@@ -29,7 +29,7 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Get current user' })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalGuard)
   @Get('me')
   getCurrentUser(@CurrentUser() user: AuthenticatedUser) {
     return user;
@@ -38,7 +38,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Logout' })
   @ApiResponse({ description: 'logout' })
   @SuccessMessage('Logout success')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(InternalGuard)
   @Post('logout')
   logout() {
     return { message: 'Logout success' };
