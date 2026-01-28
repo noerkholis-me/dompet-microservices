@@ -16,19 +16,33 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 async function main() {
-  const passwordHash = await hashPassword('admin123');
+  const adminPasswordHash = await hashPassword('admin123');
+  const pembeliPasswordHash = await hashPassword('user123');
+
   const admin = await prisma.user.create({
     data: {
       name: 'Admin User',
       email: 'admin@dompet.com',
-      password: passwordHash,
+      password: adminPasswordHash,
       roles: {
         create: [{ role: RoleType.ADMIN }],
       },
     },
   });
 
+  const pembeli = await prisma.user.create({
+    data: {
+      name: 'Pembeli User',
+      email: 'nurkholis@gmail.com',
+      password: pembeliPasswordHash,
+      roles: {
+        create: [{ role: RoleType.PEMBELI }],
+      },
+    },
+  });
+
   logger.log(`Admin user created: ${admin.id}`);
+  logger.log(`Pembeli user created: ${pembeli.id}`);
 }
 
 main()
