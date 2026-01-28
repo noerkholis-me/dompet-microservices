@@ -7,15 +7,30 @@ import { UpdateUserDto } from '@contracts/dto/users';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async getAll() {
+  async getAllUsers() {
     const users = await this.prisma.user.findMany({
-      include: { roles: true },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        roles: { select: { role: true } },
+      },
     });
 
     return users;
   }
 
-  async create(dto: CreateUserDto) {
+  async getUserById(id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new NotFoundException('User not found');
+
+    return user;
+  }
+
+  async createUser(dto: CreateUserDto) {
     const isUserExist = await this.prisma.user.findUnique({
       where: { email: dto.email, status: true },
     });
@@ -40,7 +55,7 @@ export class UsersService {
     return user;
   }
 
-  async update(id: string, dto: UpdateUserDto) {
+  async updateUser(id: string, dto: UpdateUserDto) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 
@@ -50,7 +65,7 @@ export class UsersService {
     });
   }
 
-  async delete(id: string) {
+  async deleteUser(id: string) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 

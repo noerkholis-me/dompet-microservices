@@ -8,22 +8,27 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  async getAll() {
-    return this.usersService.getAll();
+  async getAllUsers() {
+    return this.usersService.getAllUsers();
+  }
+
+  @Get(':id')
+  async getUserById(@Param('id') id: string) {
+    return this.usersService.getUserById(id);
   }
 
   @Post()
-  async create(@Body() dto: CreateUserDto) {
-    return this.usersService.create(dto);
+  async createUser(@Body() dto: CreateUserDto) {
+    return this.usersService.createUser(dto);
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
-    return this.usersService.update(id, dto);
+  async updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+    return this.usersService.updateUser(id, dto);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string) {
-    return this.usersService.delete(id);
+  async deleteUser(@Param('id') id: string) {
+    return this.usersService.deleteUser(id);
   }
 }
