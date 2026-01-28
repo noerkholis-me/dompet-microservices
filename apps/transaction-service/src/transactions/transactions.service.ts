@@ -1,27 +1,28 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { AddToCartDto } from '@contracts/dto/transaction/add-to-cart.dto';
-import { Product } from 'apps/data-master-service/src/generated/prisma/client';
+import { CommonService } from '@common/common.service';
+import { Product } from '@contracts/generated';
 
 @Injectable()
 export class TransactionsService {
+  private baseTransactionUrl: string;
   constructor(
     private prisma: PrismaService,
-    private http: HttpService,
+    private commonService: CommonService,
     private configService: ConfigService,
-  ) {}
+  ) {
+    this.baseTransactionUrl = this.configService.getOrThrow<string>('DATA_MASTER_SERVICE_URL');
+  }
 
   async addToCart(userId: string, dto: AddToCartDto) {
-    const productRes = await firstValueFrom(
-      this.http.get<Product>(`http://api-gateway:3000/api/products/${dto.productId}`, {
-        headers: { 'X-INTERNAL-KEY': this.configService.get<string>('INTERNAL_API_KEY') },
-      }),
-    );
+    const product = await this.commonService.sendRequest<Product>({
+      method: 'GET',
+      url: `${this.baseTransactionUrl}/products/${dto.productId}`,
+      headers: this.commonService.getInternalHeaders(),
+    });
 
-    const product = productRes.data;
     if (!product) throw new NotFoundException('Produk tidak ditemukan');
 
     return await this.prisma.$transaction(async (tx) => {
