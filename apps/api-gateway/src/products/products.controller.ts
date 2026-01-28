@@ -2,15 +2,21 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateProductDto, UpdateProductDto } from '@contracts/dto/products';
 import { ProductsService } from './products.service';
-import { SuccessMessage } from '@common/decorators';
+import { Roles, SuccessMessage } from '@common/decorators';
+import { JwtAuthGuard, RolesGuard } from '@common/guards';
+import { UseGuards } from '@nestjs/common';
+import { RoleType } from '@contracts/enums';
 
 @Controller('api/products')
-@ApiTags('Products')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
+@ApiTags('Products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
+  @UseGuards(RolesGuard)
+  @Roles(RoleType.ADMIN, RoleType.PEMBELI)
   @SuccessMessage('Produk berhasil diambil')
   @ApiOperation({ summary: 'Get all products' })
   @ApiResponse({ status: 200, description: 'Return all products.' })
@@ -19,16 +25,21 @@ export class ProductsController {
   }
 
   @Get(':id')
+  @UseGuards(RolesGuard)
+  @Roles(RoleType.ADMIN, RoleType.PEMBELI)
   @SuccessMessage('Produk berhasil diambil berdasarkan ID')
   @ApiOperation({ summary: 'Get product by id' })
   @ApiResponse({ status: 200, description: 'Return product by id.' })
+  @ApiParam({ name: 'id', description: 'Product ID' })
   async getProductById(@Param('id') id: string) {
     return this.productsService.getProductById(id);
   }
 
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles(RoleType.PEMBELI)
   @SuccessMessage('Produk berhasil ditambahkan')
-  @ApiOperation({ summary: 'Create a product' })
+  @ApiOperation({ summary: 'Create a product by pembeli' })
   @ApiResponse({
     status: 201,
     description: 'The product has been successfully created.',
@@ -38,8 +49,10 @@ export class ProductsController {
   }
 
   @Put(':id')
+  @UseGuards(RolesGuard)
+  @Roles(RoleType.ADMIN)
   @SuccessMessage('Produk berhasil diupdate')
-  @ApiOperation({ summary: 'Update a product' })
+  @ApiOperation({ summary: 'Update a product by admin' })
   @ApiResponse({
     status: 200,
     description: 'The product has been successfully updated.',
@@ -50,8 +63,10 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles(RoleType.ADMIN)
   @SuccessMessage('Produk berhasil dihapus')
-  @ApiOperation({ summary: 'Delete a product' })
+  @ApiOperation({ summary: 'Delete a product by admin' })
   @ApiResponse({
     status: 200,
     description: 'The product has been successfully deleted.',
