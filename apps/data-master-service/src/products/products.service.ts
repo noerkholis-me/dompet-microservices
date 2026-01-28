@@ -20,13 +20,12 @@ export class ProductsService {
   }
 
   async create(dto: CreateProductDto) {
-    const product = await this.prisma.product.findUnique({ where: { name: dto.nama } });
+    const product = await this.prisma.product.findUnique({ where: { name: dto.name } });
     if (product) throw new ConflictException('Nama produk sudah ada');
 
     return this.prisma.product.create({
       data: {
         ...dto,
-        name: dto.nama,
       },
     });
   }
@@ -39,7 +38,6 @@ export class ProductsService {
       where: { id },
       data: {
         ...dto,
-        name: dto.nama,
       },
     });
   }
@@ -48,6 +46,6 @@ export class ProductsService {
     const product = await this.findOne(id);
     if (!product) throw new NotFoundException('Produk tidak ditemukan');
 
-    return this.prisma.product.delete({ where: { id } });
+    await this.prisma.product.delete({ where: { id } });
   }
 }

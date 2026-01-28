@@ -1,89 +1,63 @@
-import { HttpService } from '@nestjs/axios';
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { firstValueFrom } from 'rxjs';
-import { Product } from '@contracts/generated';
-import { CreateProductDto } from '@contracts/dto/products';
-import { UpdateUserDto } from '@contracts/dto/users';
+import { CreateProductDto, UpdateProductDto } from '@contracts/dto/products';
+import { ProductsService } from './products.service';
+import { SuccessMessage } from '@common/decorators';
 
 @Controller('api/products')
 @ApiTags('Products')
 @ApiBearerAuth()
 export class ProductsController {
-  constructor(
-    private readonly http: HttpService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all users' })
-  @ApiResponse({ status: 200, description: 'Return all users.' })
-  async getAll() {
-    return (
-      await firstValueFrom(
-        this.http.get<Product[]>('http://data-master-service:3000/products', {
-          headers: {
-            'X-INTERNAL-KEY': this.configService.get<string>('INTERNAL_API_KEY'),
-          },
-        }),
-      )
-    ).data;
+  @SuccessMessage('Produk berhasil diambil')
+  @ApiOperation({ summary: 'Get all products' })
+  @ApiResponse({ status: 200, description: 'Return all products.' })
+  async getProducts() {
+    return this.productsService.getProducts();
+  }
+
+  @Get(':id')
+  @SuccessMessage('Produk berhasil diambil berdasarkan ID')
+  @ApiOperation({ summary: 'Get product by id' })
+  @ApiResponse({ status: 200, description: 'Return product by id.' })
+  async getProductById(@Param('id') id: string) {
+    return this.productsService.getProductById(id);
   }
 
   @Post()
-  @ApiOperation({ summary: 'Create a user' })
+  @SuccessMessage('Produk berhasil ditambahkan')
+  @ApiOperation({ summary: 'Create a product' })
   @ApiResponse({
     status: 201,
-    description: 'The user has been successfully created.',
+    description: 'The product has been successfully created.',
   })
-  async create(@Body() dto: CreateProductDto) {
-    return (
-      await firstValueFrom(
-        this.http.post<Product>('http://data-master-service:3000/products', dto, {
-          headers: {
-            'X-INTERNAL-KEY': this.configService.get<string>('INTERNAL_API_KEY'),
-          },
-        }),
-      )
-    ).data;
+  async createProduct(@Body() dto: CreateProductDto) {
+    return this.productsService.createProduct(dto);
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update a user' })
+  @SuccessMessage('Produk berhasil diupdate')
+  @ApiOperation({ summary: 'Update a product' })
   @ApiResponse({
     status: 200,
-    description: 'The user has been successfully updated.',
+    description: 'The product has been successfully updated.',
   })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
-    return (
-      await firstValueFrom(
-        this.http.put<Product>(`http://data-master-service:3000/products/${id}`, dto, {
-          headers: {
-            'X-INTERNAL-KEY': this.configService.get<string>('INTERNAL_API_KEY'),
-          },
-        }),
-      )
-    ).data;
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  async updateProduct(@Param('id') id: string, @Body() dto: UpdateProductDto) {
+    return this.productsService.updateProduct(id, dto);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete a user' })
+  @SuccessMessage('Produk berhasil dihapus')
+  @ApiOperation({ summary: 'Delete a product' })
   @ApiResponse({
     status: 200,
-    description: 'The user has been successfully deleted.',
+    description: 'The product has been successfully deleted.',
   })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  async delete(@Param('id') id: string) {
-    return (
-      await firstValueFrom(
-        this.http.delete<{ message: string }>(`http://data-master-service:3000/products/${id}`, {
-          headers: {
-            'X-INTERNAL-KEY': this.configService.get<string>('INTERNAL_API_KEY'),
-          },
-        }),
-      )
-    ).data;
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  async deleteProduct(@Param('id') id: string) {
+    return this.productsService.deleteProduct(id);
   }
 }
