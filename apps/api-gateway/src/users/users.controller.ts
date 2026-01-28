@@ -1,34 +1,34 @@
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from '@contracts/dto/users';
 import { UpdateUserDto } from '@contracts/dto/users';
-import { User } from '@contracts/generated/auth-services.types';
-import { HttpService } from '@nestjs/axios';
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { firstValueFrom } from 'rxjs';
+import { UsersService } from './users.service';
+import { JwtAuthGuard } from '@common/guards';
+import { RolesGuard } from '@common/guards';
+import { RoleType } from '@contracts/enums';
+import { Roles } from '@common/decorators';
 
 @Controller('api/users')
-@ApiTags('Users')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(RoleType.ADMIN)
+@ApiTags('Users', RoleType.ADMIN)
 @ApiBearerAuth()
 export class UsersController {
-  constructor(
-    private readonly http: HttpService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'Return all users.' })
-  async getAll() {
-    return (
-      await firstValueFrom(
-        this.http.get<User[]>('http://rbac-service:3000/users', {
-          headers: {
-            'X-INTERNAL-KEY': this.configService.get<string>('INTERNAL_API_KEY'),
-          },
-        }),
-      )
-    ).data;
+  async getAllUsers() {
+    return await this.usersService.getAllUsers();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a user by ID' })
+  @ApiResponse({ status: 200, description: 'Return a user.' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  async getUserById(@Param('id') id: string) {
+    return await this.usersService.getUserById(id);
   }
 
   @Post()
@@ -37,16 +37,8 @@ export class UsersController {
     status: 201,
     description: 'The user has been successfully created.',
   })
-  async create(@Body() dto: CreateUserDto) {
-    return (
-      await firstValueFrom(
-        this.http.post<User>('http://rbac-service:3000/users', dto, {
-          headers: {
-            'X-INTERNAL-KEY': this.configService.get<string>('INTERNAL_API_KEY'),
-          },
-        }),
-      )
-    ).data;
+  async createUser(@Body() dto: CreateUserDto) {
+    return await this.usersService.createUser(dto);
   }
 
   @Put(':id')
@@ -56,16 +48,8 @@ export class UsersController {
     description: 'The user has been successfully updated.',
   })
   @ApiParam({ name: 'id', description: 'User ID' })
-  async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
-    return (
-      await firstValueFrom(
-        this.http.put<User>(`http://rbac-service:3000/users/${id}`, dto, {
-          headers: {
-            'X-INTERNAL-KEY': this.configService.get<string>('INTERNAL_API_KEY'),
-          },
-        }),
-      )
-    ).data;
+  async updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
+    return await this.usersService.updateUser(id, dto);
   }
 
   @Delete(':id')
@@ -75,15 +59,7 @@ export class UsersController {
     description: 'The user has been successfully deleted.',
   })
   @ApiParam({ name: 'id', description: 'User ID' })
-  async delete(@Param('id') id: string) {
-    return (
-      await firstValueFrom(
-        this.http.delete<{ message: string }>(`http://rbac-service:3000/users/${id}`, {
-          headers: {
-            'X-INTERNAL-KEY': this.configService.get<string>('INTERNAL_API_KEY'),
-          },
-        }),
-      )
-    ).data;
+  async deleteUser(@Param('id') id: string) {
+    return await this.usersService.deleteUser(id);
   }
 }
