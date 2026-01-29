@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, Package, ShoppingCart, TrendingUp } from 'lucide-react';
@@ -96,8 +97,8 @@ const Dashboard: React.FC = () => {
           <div className="grid gap-4 md:grid-cols-3">
             {isAdmin ? (
               <>
-                <a
-                  href="/users"
+                <Link
+                  to="/users"
                   className="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-accent"
                 >
                   <Users className="h-8 w-8 text-primary" />
@@ -105,9 +106,9 @@ const Dashboard: React.FC = () => {
                     <p className="font-medium">Kelola User</p>
                     <p className="text-sm text-muted-foreground">Tambah, edit, atau hapus user</p>
                   </div>
-                </a>
-                <a
-                  href="/products"
+                </Link>
+                <Link
+                  to="/products"
                   className="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-accent"
                 >
                   <Package className="h-8 w-8 text-primary" />
@@ -115,12 +116,12 @@ const Dashboard: React.FC = () => {
                     <p className="font-medium">Master Produk</p>
                     <p className="text-sm text-muted-foreground">Kelola produk API</p>
                   </div>
-                </a>
+                </Link>
               </>
             ) : (
               <>
-                <a
-                  href="/purchase"
+                <Link
+                  to="/purchase"
                   className="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-accent"
                 >
                   <ShoppingCart className="h-8 w-8 text-primary" />
@@ -128,9 +129,9 @@ const Dashboard: React.FC = () => {
                     <p className="font-medium">Beli Produk</p>
                     <p className="text-sm text-muted-foreground">Beli token API</p>
                   </div>
-                </a>
-                <a
-                  href="/history"
+                </Link>
+                <Link
+                  to="/history"
                   className="flex items-center gap-3 rounded-lg border p-4 transition-colors hover:bg-accent"
                 >
                   <TrendingUp className="h-8 w-8 text-primary" />
@@ -138,7 +139,7 @@ const Dashboard: React.FC = () => {
                     <p className="font-medium">History Pembayaran</p>
                     <p className="text-sm text-muted-foreground">Lihat riwayat transaksi</p>
                   </div>
-                </a>
+                </Link>
               </>
             )}
           </div>
