@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import React, { useState } from 'react';
 import { userService } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -22,58 +20,26 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Search, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
-import { CreateUserInput, CreateUserSchema } from '@contracts/schemas/users';
 import { RoleType } from '@contracts/enums/role.enum';
 import { User } from '@contracts/generated';
+import { useGetUsers } from '@/features/users/hooks/useUsers';
+import { useCreateUserForm } from '@/features/users/hooks/useUserForm';
 
 const Users: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors },
-  } = useForm<CreateUserInput>({
-    resolver: zodResolver(CreateUserSchema),
-    defaultValues: {
-      role: RoleType.PEMBELI,
-      status: true,
-    },
+  const { form, onSubmit, errors, isPending } = useCreateUserForm({
+    onSuccess: () => setIsModalOpen(false),
   });
-
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const response = await userService.getAll();
-      setUsers(response);
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Gagal memuat data user',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, [searchQuery]);
+  const { data: users, isLoading } = useGetUsers();
 
   const openCreateModal = () => {
     setSelectedUser(null);
-    reset({
+    form.reset({
       name: '',
       email: '',
       password: '',
@@ -85,7 +51,7 @@ const Users: React.FC = () => {
 
   const openEditModal = (user: User) => {
     setSelectedUser(user);
-    reset({
+    form.reset({
       name: user.name,
       email: user.email,
       password: '',
@@ -100,40 +66,40 @@ const Users: React.FC = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const onSubmit = async (data: CreateUserInput) => {
-    try {
-      setIsSubmitting(true);
-      if (selectedUser) {
-        await userService.update(selectedUser.id, {
-          name: data.name,
-          email: data.email,
-          password: data.password || undefined,
-          status: data.status,
-          role: data.role,
-        });
-        toast({
-          title: 'Berhasil',
-          description: 'User berhasil diperbarui',
-        });
-      } else {
-        await userService.create(data);
-        toast({
-          title: 'Berhasil',
-          description: 'User berhasil ditambahkan',
-        });
-      }
-      setIsModalOpen(false);
-      fetchUsers();
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Terjadi kesalahan',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // const onSubmit = async (data: CreateUserInput) => {
+  //   try {
+  //     setIsSubmitting(true);
+  //     if (selectedUser) {
+  //       await userService.update(selectedUser.id, {
+  //         name: data.name,
+  //         email: data.email,
+  //         password: data.password || undefined,
+  //         status: data.status,
+  //         role: data.role,
+  //       });
+  //       toast({
+  //         title: 'Berhasil',
+  //         description: 'User berhasil diperbarui',
+  //       });
+  //     } else {
+  //       await userService.create(data);
+  //       toast({
+  //         title: 'Berhasil',
+  //         description: 'User berhasil ditambahkan',
+  //       });
+  //     }
+  //     setIsModalOpen(false);
+  //     // fetchUsers();
+  //   } catch (error) {
+  //     toast({
+  //       variant: 'destructive',
+  //       title: 'Error',
+  //       description: error instanceof Error ? error.message : 'Terjadi kesalahan',
+  //     });
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
 
   const handleDelete = async () => {
     if (!selectedUser) return;
@@ -145,7 +111,7 @@ const Users: React.FC = () => {
         description: 'User berhasil dihapus',
       });
       setIsDeleteDialogOpen(false);
-      fetchUsers();
+      // fetchUsers();
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -183,7 +149,7 @@ const Users: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {loading ? (
+          {isLoading ? (
             <div className="flex h-40 items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
@@ -201,14 +167,14 @@ const Users: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.length === 0 ? (
+                {users?.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center text-muted-foreground">
                       Tidak ada data user
                     </TableCell>
                   </TableRow>
                 ) : (
-                  users.map((user, index) => (
+                  users?.map((user, index) => (
                     <TableRow key={user.id}>
                       <TableCell>{index + 1}</TableCell>
                       <TableCell className="font-medium">{user.name}</TableCell>
@@ -251,10 +217,10 @@ const Users: React.FC = () => {
           <DialogHeader>
             <DialogTitle>{selectedUser ? 'Edit User' : 'Tambah User Baru'}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="namaLengkap">Nama Lengkap</Label>
-              <Input id="namaLengkap" {...register('name')} className={errors.name ? 'border-destructive' : ''} />
+              <Input id="namaLengkap" {...form.register('name')} className={errors.name ? 'border-destructive' : ''} />
               {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
             </div>
 
@@ -263,7 +229,7 @@ const Users: React.FC = () => {
               <Input
                 id="email"
                 type="email"
-                {...register('email')}
+                {...form.register('email')}
                 className={errors.email ? 'border-destructive' : ''}
               />
               {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
@@ -271,8 +237,8 @@ const Users: React.FC = () => {
 
             {/* <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
-              <Input id="username" {...register('email')} className={errors.email ? 'border-destructive' : ''} />
-              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+              <Input id="username" {...register('email')} className={formError.email ? 'border-destructive' : ''} />
+              {formError.email && <p className="text-sm text-destructive">{formError.email.message}</p>}
             </div> */}
 
             <div className="space-y-2">
@@ -280,7 +246,7 @@ const Users: React.FC = () => {
               <Input
                 id="password"
                 type="password"
-                {...register('password')}
+                {...form.register('password')}
                 className={errors.password ? 'border-destructive' : ''}
               />
               {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
@@ -289,13 +255,13 @@ const Users: React.FC = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Role</Label>
-                <Select value={watch('role')} onValueChange={(value: RoleType) => setValue('role', value)}>
+                <Select value={form.watch('role')} onValueChange={(value: RoleType) => form.setValue('role', value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="pembeli">Pembeli</SelectItem>
+                    <SelectItem value={RoleType.ADMIN}>Admin</SelectItem>
+                    <SelectItem value={RoleType.PEMBELI}>Pembeli</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -303,8 +269,8 @@ const Users: React.FC = () => {
               <div className="space-y-2">
                 <Label>Status</Label>
                 <Select
-                  value={watch('status') ? 'aktif' : 'nonaktif'}
-                  onValueChange={(value: string) => setValue('status', value === 'aktif')}
+                  value={form.watch('status') ? 'aktif' : 'nonaktif'}
+                  onValueChange={(value: string) => form.setValue('status', value === 'aktif')}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -321,8 +287,8 @@ const Users: React.FC = () => {
               <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
                 Batal
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (
+              <Button type="submit" disabled={isPending}>
+                {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Menyimpan...
