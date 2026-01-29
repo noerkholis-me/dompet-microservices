@@ -149,12 +149,14 @@ services:
 
   frontend:
     build:
-      context: ./apps/frontend
-      dockerfile: Dockerfile.frontend
+      context: .
+      dockerfile: apps/frontend/Dockerfile.frontend
+    working_dir: /usr/src/app/apps/frontend
     volumes:
-      - ./apps/frontend:/usr/src/app
+      - ./apps/frontend:/usr/src/app/apps/frontend
       - ./libs:/usr/src/app/libs
       - /usr/src/app/node_modules
+      - /usr/src/app/apps/frontend/node_modules
     env_file:
       - ./.env
     command: npm run dev -- --host 0.0.0.0
