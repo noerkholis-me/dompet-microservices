@@ -9,10 +9,15 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
-      host: true,
+      host: '0.0.0.0',
       port: 5173,
+      strictPort: true,
+      watch: {
+        usePolling: true,
+      },
       hmr: {
         overlay: false,
+        clientPort: 8080,
       },
       proxy: {
         '/api': {
@@ -27,7 +32,9 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, './src'),
         '@contracts': path.resolve(__dirname, '../../libs/contracts/src'),
         'nestjs-zod': path.resolve(__dirname, './src/shims-nestjs.ts'),
+        zod: path.resolve(__dirname, './node_modules/zod'),
       },
+      dedupe: ['zod'],
     },
   };
 });
