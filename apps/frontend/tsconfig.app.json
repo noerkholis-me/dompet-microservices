@@ -14,12 +14,8 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-
-    /* Path aliases */
-    "baseUrl": "./",
-    "ignoreDeprecations": "6.0",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
       "@contracts/*": ["../../libs/contracts/src/*"]
     },
 
