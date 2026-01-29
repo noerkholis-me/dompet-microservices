@@ -46,11 +46,11 @@ const navItems: NavItem[] = [
 ];
 
 export const Sidebar: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, clearAuth } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await logout();
+    clearAuth();
     navigate('/login');
   };
 

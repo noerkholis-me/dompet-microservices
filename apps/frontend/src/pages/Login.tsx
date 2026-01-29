@@ -1,36 +1,27 @@
 import React, { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Wallet, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { LoginInput, LoginSchema } from '@contracts/schemas/auth';
-
-// const loginSchema = z.object({
-//   username: z.string().min(1, 'Username wajib diisi'),
-//   password: z.string().min(1, 'Password wajib diisi'),
-// });
-
-// type LoginFormData = z.infer<typeof loginSchema>;
+import { useLoginForm } from '@/features/auth/hooks/useLoginForm';
 
 const Login: React.FC = () => {
-  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
+
+  const { form, onSubmit, isPending } = useLoginForm({
+    onSuccess: () => navigate('/dashboard'),
+  });
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginInput>({
-    resolver: zodResolver(LoginSchema),
-  });
+    formState: { errors },
+  } = form;
 
   // Redirect if already authenticated
   if (authLoading) {
@@ -44,23 +35,6 @@ const Login: React.FC = () => {
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
-
-  const onSubmit = async (data: LoginInput) => {
-    try {
-      await login(data);
-      toast({
-        title: 'Login Berhasil',
-        description: 'Selamat datang di DOMPET MICROSERVICES',
-      });
-      navigate('/dashboard');
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Login Gagal',
-        description: error instanceof Error ? error.message : 'Terjadi kesalahan',
-      });
-    }
-  };
 
   return (
     <div className="flex min-h-screen items-center justify-center gradient-primary p-4">
@@ -109,8 +83,8 @@ const Login: React.FC = () => {
               {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? (
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Memproses...
