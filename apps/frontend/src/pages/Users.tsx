@@ -3,10 +3,8 @@ import { userService } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,7 +21,8 @@ import { Search, Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { RoleType } from '@contracts/enums/role.enum';
 import { User } from '@contracts/generated';
 import { useGetUsers } from '@/features/users/hooks/useUsers';
-import { useCreateUserForm } from '@/features/users/hooks/useUserForm';
+import { CreateUserForm } from '@/features/users/components/CreateUserForm';
+import { UpdateUserForm } from '@/features/users/components/UpdateUserForm';
 
 const Users: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,32 +31,15 @@ const Users: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { toast } = useToast();
 
-  const { form, onSubmit, errors, isPending } = useCreateUserForm({
-    onSuccess: () => setIsModalOpen(false),
-  });
   const { data: users, isLoading } = useGetUsers();
 
   const openCreateModal = () => {
     setSelectedUser(null);
-    form.reset({
-      name: '',
-      email: '',
-      password: '',
-      role: RoleType.PEMBELI,
-      status: true,
-    });
     setIsModalOpen(true);
   };
 
   const openEditModal = (user: User) => {
     setSelectedUser(user);
-    form.reset({
-      name: user.name,
-      email: user.email,
-      password: '',
-      role: RoleType.PEMBELI,
-      status: user.status,
-    });
     setIsModalOpen(true);
   };
 
@@ -65,41 +47,6 @@ const Users: React.FC = () => {
     setSelectedUser(user);
     setIsDeleteDialogOpen(true);
   };
-
-  // const onSubmit = async (data: CreateUserInput) => {
-  //   try {
-  //     setIsSubmitting(true);
-  //     if (selectedUser) {
-  //       await userService.update(selectedUser.id, {
-  //         name: data.name,
-  //         email: data.email,
-  //         password: data.password || undefined,
-  //         status: data.status,
-  //         role: data.role,
-  //       });
-  //       toast({
-  //         title: 'Berhasil',
-  //         description: 'User berhasil diperbarui',
-  //       });
-  //     } else {
-  //       await userService.create(data);
-  //       toast({
-  //         title: 'Berhasil',
-  //         description: 'User berhasil ditambahkan',
-  //       });
-  //     }
-  //     setIsModalOpen(false);
-  //     // fetchUsers();
-  //   } catch (error) {
-  //     toast({
-  //       variant: 'destructive',
-  //       title: 'Error',
-  //       description: error instanceof Error ? error.message : 'Terjadi kesalahan',
-  //     });
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
 
   const handleDelete = async () => {
     if (!selectedUser) return;
@@ -111,7 +58,6 @@ const Users: React.FC = () => {
         description: 'User berhasil dihapus',
       });
       setIsDeleteDialogOpen(false);
-      // fetchUsers();
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -119,6 +65,17 @@ const Users: React.FC = () => {
         description: error instanceof Error ? error.message : 'Terjadi kesalahan',
       });
     }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const getRoleFromUser = (user: User): RoleType => {
+    if (user.roles?.some((r) => r.role === RoleType.ADMIN)) {
+      return RoleType.ADMIN;
+    }
+    return RoleType.PEMBELI;
   };
 
   return (
@@ -217,88 +174,23 @@ const Users: React.FC = () => {
           <DialogHeader>
             <DialogTitle>{selectedUser ? 'Edit User' : 'Tambah User Baru'}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="namaLengkap">Nama Lengkap</Label>
-              <Input id="namaLengkap" {...form.register('name')} className={errors.name ? 'border-destructive' : ''} />
-              {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                {...form.register('email')}
-                className={errors.email ? 'border-destructive' : ''}
-              />
-              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
-            </div>
-
-            {/* <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input id="username" {...register('email')} className={formError.email ? 'border-destructive' : ''} />
-              {formError.email && <p className="text-sm text-destructive">{formError.email.message}</p>}
-            </div> */}
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                {...form.register('password')}
-                className={errors.password ? 'border-destructive' : ''}
-              />
-              {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Role</Label>
-                <Select value={form.watch('role')} onValueChange={(value: RoleType) => form.setValue('role', value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={RoleType.ADMIN}>Admin</SelectItem>
-                    <SelectItem value={RoleType.PEMBELI}>Pembeli</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Status</Label>
-                <Select
-                  value={form.watch('status') ? 'aktif' : 'nonaktif'}
-                  onValueChange={(value: string) => form.setValue('status', value === 'aktif')}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="aktif">Aktif</SelectItem>
-                    <SelectItem value="nonaktif">Nonaktif</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-                Batal
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Menyimpan...
-                  </>
-                ) : (
-                  'Simpan'
-                )}
-              </Button>
-            </DialogFooter>
-          </form>
+          {selectedUser ? (
+            <UpdateUserForm
+              userId={selectedUser.id}
+              initialData={{
+                name: selectedUser.name,
+                email: selectedUser.email,
+                role: getRoleFromUser(selectedUser),
+                status: selectedUser.status,
+                password: '',
+              }}
+              onSuccess={closeModal}
+              onCancel={closeModal}
+            />
+          ) : (
+            <CreateUserForm onSuccess={closeModal} onCancel={closeModal} />
+          )}
         </DialogContent>
       </Dialog>
 
