@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from '@contracts/dto/users';
 import { UpdateUserDto } from '@contracts/dto/users';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -37,11 +38,13 @@ export class UsersService {
 
     if (isUserExist) throw new BadRequestException('User already exists');
 
+    const hashPassword = await argon2.hash(dto.password);
+
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
         name: dto.name,
-        password: dto.password,
+        password: hashPassword,
         status: dto.status,
       },
     });
@@ -59,9 +62,27 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
 
-    return this.prisma.user.update({
-      where: { id },
-      data: { ...dto },
+    return this.prisma.$transaction(async (tx) => {
+      let hashPassword;
+      if (dto.password) {
+        hashPassword = await argon2.hash(dto.password);
+      }
+
+      await tx.user.update({
+        where: { id },
+        data: {
+          email: dto.email,
+          name: dto.name,
+          password: hashPassword,
+          status: dto.status,
+          roles: dto.role
+            ? {
+                deleteMany: {},
+                create: { role: dto.role },
+              }
+            : undefined,
+        },
+      });
     });
   }
 
