@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const LoginSchema = z.object({
-  email: z.email().describe('admin@dompet.com'),
+  email: z.string().email().describe('admin@dompet.com'),
   password: z.string().describe('admin123'),
 });
 
