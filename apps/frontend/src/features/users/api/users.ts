@@ -13,7 +13,7 @@ export const createUser = async (data: CreateUserDto): Promise<User> => {
   return response.data.data;
 };
 
-export const updateUser = async (id: string, data: UpdateUserDto): Promise<User> => {
+export const updateUser = async (data: UpdateUserDto, id: string): Promise<User> => {
   const response = await apiClient.put<ApiResponse<User>>(`/users/${id}`, data);
   return response.data.data;
 };
