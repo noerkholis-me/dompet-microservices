@@ -48,8 +48,8 @@ services:
       - ./.env
     command: sh -c "npx prisma generate --schema=apps/auth-service/prisma/schema.prisma && npm run start:dev:auth"
     container_name: dompet-auth-service
-    ports:
-      - "3001:3000"
+    # ports:
+    #   - "3001:3000"
     environment:
       - DATABASE_URL=postgresql://user_admin:admin123@postgres-auth:5432/auth_db?schema=public
       - NODE_OPTIONS=--max-old-space-size=384
@@ -76,8 +76,8 @@ services:
       - ./.env
     command: sh -c "npx prisma generate --schema=apps/rbac-service/prisma/schema.prisma && npm run start:dev:rbac"
     container_name: dompet-rbac-service
-    ports:
-      - "3002:3000"
+    # ports:
+    #   - "3002:3000"
     environment:
       - DATABASE_URL=postgresql://user_admin:admin123@postgres-auth:5432/auth_db?schema=public
       - NODE_OPTIONS=--max-old-space-size=384
@@ -104,8 +104,8 @@ services:
       - ./.env
     command: sh -c "npx prisma generate --schema=apps/data-master-service/prisma/schema.prisma && npm run start:dev:master"
     container_name: dompet-data-master-service
-    ports:
-      - "3003:3000"
+    # ports:
+    #   - "3003:3000"
     environment:
       - DATABASE_URL=postgresql://user_admin:admin123@postgres-master:5432/master_db?schema=public
       - NODE_OPTIONS=--max-old-space-size=384
@@ -132,8 +132,8 @@ services:
       - ./.env
     command: sh -c "npx prisma generate --schema=apps/transaction-service/prisma/schema.prisma && npm run start:dev:transaction"
     container_name: dompet-transaction-service
-    ports:
-      - "3004:3000"
+    # ports:
+    #   - "3004:3000"
     environment:
       - DATABASE_URL=postgresql://user_admin:admin123@postgres-transaction:5432/transaction_db?schema=public
       - NODE_OPTIONS=--max-old-space-size=384
@@ -163,9 +163,9 @@ services:
     container_name: dompet-frontend
     ports:
       - "8080:5173"
-    depends_on:
-      api-gateway:
-        condition: service_healthy
+    # depends_on:
+    #   api-gateway:
+    #     condition: service_healthy
     environment:
       - NODE_OPTIONS=--max-old-space-size=768
     deploy:
